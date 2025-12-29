@@ -14,7 +14,7 @@ public class OffreService {
         return dao.findAll();
     }
 
-    /*public List<Offre> filtrerParVille(String ville) {
+    public List<Offre> filtrerParVille(String ville) {
         return dao.findByVille(ville);
     }
 
@@ -24,6 +24,10 @@ public class OffreService {
 
     public List<Offre> filtrerParCompetence(String competence) {
         return dao.findByCompetence(competence);
+    }
+    
+    public List<Offre> filtrerParCombinaison(String ville, String secteur, String competence) {
+        return dao.findBy(ville, secteur, competence);
     }
 
     // Filtrage combiné
@@ -41,7 +45,6 @@ public class OffreService {
         if (competence != null && !competence.isEmpty()) {
             filtered.removeIf(o -> !o.getCompetences().contains(competence));
         }
-
         return filtered;
-    }*/
+    }
 }

@@ -20,34 +20,68 @@ public class Test {
             OffreService offreservice = new OffreService();
             List<Offre> offres = Offre();
             offres= offreservice.getAllOffres();
+            List<Offre> offresCasa = Offre();
+            offresCasa=offreservice.filtrerParVille("Casablanca");
+            
+            List<Offre> offresInfo = Offre();
+            offresInfo=offreservice.filtrerParSecteur("automobile");
+            
+            List<Offre> offresSql = Offre();
+            offresSql=offreservice.filtrerParCompetence("Sql");
+            
+            List<Offre> offresfilrer = Offre();
+            offresfilrer=offreservice.filtrerParCombinaison("rabat", "informatique", "sql");
             
             
-
+            
+            
             /*for (ScrapedData d : data) {
+            	String title = d.getTitle();
                 String description = d.getDescription();
                 System.out.println("----------------------------------------");
+                System.out.println("title: " + d.getTitle());
                 System.out.println("Entreprise : " + nlp.extractCompany(description));
-                System.out.println("Ville : " + nlp.extractCity(description));
+                System.out.println("Ville : " + nlp.extractCity(title+description));
                 System.out.println("Secteur : " + nlp.extractSector(description));
                 System.out.println("Expérience : " + nlp.extractExperience(description));
                 System.out.println("Compétences : " + nlp.extractSkills(description));
             }*/
             
-           // dao.saveAllToJobsTable(data);
+           //dao.saveAllToJobsTable(data);
 
-            // dao.saveAll(data);
-            /*for (ScrapedData d : data) {
+            /* dao.saveAll(data);
+            for (ScrapedData d : data) {
                 System.out.println("URL: " + d.getUrl());
                 System.out.println("title: " + d.getTitle());
                 System.out.println("DESC: " + d.getDescription());
                 System.out.println("----------------------------");
             }*/
-            
+            /*
             System.out.println("Nombre d'offres récupérées : " + offres.size());
             for (Offre o : offres) {
-                System.out.println(o.toString());
-        }
-        }catch (Exception e) {
+                System.out.println(o.toString());}
+            
+
+            System.out.println("Nombre d'offres récupérées Casablanca: " + offresCasa.size());
+            for (Offre o : offresCasa) {
+                System.out.println(o.toString());}
+            
+           
+            System.out.println("Nombre d'offres récupérées info: " + offresInfo.size());
+            for (Offre o : offresInfo) {
+                System.out.println(o.toString());}
+          
+            System.out.println("Nombre d'offres récupérées info: " + offresSql.size());
+            for (Offre o : offresSql) {
+                System.out.println(o.toString());}
+        */ 
+            
+            System.out.println("Nombre d'offres récupérées info: " + offresfilrer.size());
+            for (Offre o : offresfilrer) {
+                System.out.println(o.toString());}
+            
+            
+    }catch (Exception e) {
             System.err.println("Une erreur s'est produite pendant l'exécution du scraper : " + e.getMessage());
             e.printStackTrace();
         }

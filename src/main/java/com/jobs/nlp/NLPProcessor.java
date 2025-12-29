@@ -1,6 +1,7 @@
 package com.jobs.nlp;
 
 import com.jobs.dao.CompetenceDAO;
+import java.text.Normalizer;
 import com.jobs.dao.VilleDAO;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,15 +41,24 @@ public class NLPProcessor {
 
     // ===================== VILLE =====================
 	public String extractCity(String text){
-        if(text == null) return "";
+	    if(text == null) return "";
 
-        for(String v : villes){
-            if(text.toLowerCase().contains(v.toLowerCase()))
-                return v;
-        }
+	    String normalizedText = normalize(text);
 
-        return "";
-    }
+	    for(String v : villes){
+	        if(normalizedText.contains(normalize(v)))
+	            return v; // retourne la forme originale depuis ta liste
+	    }
+
+	    return "";
+	}
+
+	// fonction utilitaire pour retirer les accents et mettre en minuscule
+	private String normalize(String value){
+	    if(value == null) return "";
+	    String norm = Normalizer.normalize(value, Normalizer.Form.NFD);
+	    return norm.replaceAll("\\p{M}", "").toLowerCase();
+	}
 
     // ===================== SECTEUR =====================
     public String extractSector(String text){
@@ -77,18 +87,56 @@ public class NLPProcessor {
     public String extractExperience(String text){
         if(text == null) return "";
 
+        // Chercher la ligne "Expérience requise : ..."
         Pattern p = Pattern.compile("Expérience requise\\s*:\\s*([^\\n]+)",
                 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
         Matcher m = p.matcher(text);
 
         if(m.find()){
-            String expText = m.group(1);
+            String expText = m.group(1).trim();
 
-            // chercher tous les nombres
-            Pattern numPattern = Pattern.compile("(\\d+)");
+            // On gère d'abord les mentions textuelles
+            String expLower = expText.toLowerCase();
+
+            if(expLower.contains("débutant") && expLower.contains("junior")) {
+                return "Débutant / Junior";
+            }
+            if(expLower.contains("débutant")){
+                return "Débutant";
+            }
+            
+            if(expLower.contains("junior")) {
+                return "Junior";
+            }
+            if(expLower.contains("intermédiaire") && expLower.contains("confirmé")) {
+                return "confirmé / intermédiaire";
+            }
+            
+            if(expLower.contains("intermédiaire") && expLower.contains("Junior")) {
+                return "Junior / intermédiaire";
+            }
+            if(expLower.contains("Expert") && expLower.contains("Confirmé")) {
+                return "Confirmé / Expert";
+            }
+            
+            if(expLower.contains("Expert")) {
+                return "Expert";
+            }
+            
+            if(expLower.contains("intermédiaire")) {
+                return "Intermédiaire";
+            }
+            if(expLower.contains("confirmé")) {
+                return "Confirmé";
+            }
+            if(expLower.contains("senior")) {
+                return "Senior";
+            }
+
+            // Si c'est un range numérique (ex : "De 3 à 5 ans", "1 à 3 ans")
+            /*Pattern numPattern = Pattern.compile("(\\d+)");
             Matcher numMatch = numPattern.matcher(expText);
-
             List<Integer> values = new ArrayList<>();
 
             while(numMatch.find()){
@@ -100,10 +148,14 @@ public class NLPProcessor {
                 int max = Collections.max(values);
                 return min + " à " + max + " ans";
             }
+
+            // Cas générique si aucune info détectée
+            return expText; */
         }
 
         return "Non spécifiée";
     }
+
 
 
     // ===================== COMPETENCES =====================

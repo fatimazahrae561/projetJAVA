@@ -1,10 +1,14 @@
 package com.jobs.dao;
 import  com.jobs.nlp.NLPProcessor;
+import com.jobs.model.Offre;
 import com.jobs.model.ScrapedData;
 import com.jobs.database.DatabaseConnector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OffreDAO {
@@ -73,5 +77,52 @@ public class OffreDAO {
 
     
     } 
+
     
+    public List<Offre> findAll() {
+        List<Offre> offres = new ArrayList<>();
+        String sql = "SELECT o.id, o.entreprise, o.ville,o.titre, o.secteur, o.experience, o.url, o.description, o.date_insertion, o.competences " +
+                     "FROM offres_jobs o";
+
+        try (Connection conn = DatabaseConnector.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Offre offre = new Offre();
+                offre.setId(rs.getInt("id"));
+                offre.setEntreprise(rs.getString("entreprise"));
+
+                // Pour ville et secteur on peut juste stocker le nom pour simplifier
+                offre.setVille(rs.getString("ville"));
+                offre.setSecteur(rs.getString("secteur"));
+
+                offre.setExperience(rs.getString("experience"));
+                offre.setUrlSource(rs.getString("url"));
+                offre.setDescription(rs.getString("description"));
+                offre.setTitle(rs.getString("titre"));
+
+                offre.setDatePublication(rs.getDate("date_insertion"));
+                
+                // Compétences stockées en DB sous forme "Java,SQL,Spring"
+                String competencesStr = rs.getString("competences");
+                List<String> competencesList = new ArrayList<>();
+                if (competencesStr != null && !competencesStr.isEmpty()) {
+                    String[] comps = competencesStr.split(",");
+                    for (String c : comps) {
+                        competencesList.add(c.trim());
+                    }
+                }
+                offre.setCompetences(competencesList);
+
+                offres.add(offre);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return offres;
+    }
+
 }

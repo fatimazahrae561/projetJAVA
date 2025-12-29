@@ -2,6 +2,8 @@ package com.jobs.scraper;
 
 import com.jobs.scraper.RekruteScraper;
 import com.jobs.scraper.Scraper;
+import com.jobs.service.OffreService;
+import com.jobs.model.Offre;
 import com.jobs.model.ScrapedData;
 import com.jobs.dao.OffreDAO;
 import com.jobs.nlp.NLPProcessor;
@@ -15,8 +17,13 @@ public class Test {
             List<ScrapedData> data = scraper.scrape();
             OffreDAO dao = new OffreDAO();
             NLPProcessor nlp = new NLPProcessor();
+            OffreService offreservice = new OffreService();
+            List<Offre> offres = Offre();
+            offres= offreservice.getAllOffres();
+            
+            
 
-            for (ScrapedData d : data) {
+            /*for (ScrapedData d : data) {
                 String description = d.getDescription();
                 System.out.println("----------------------------------------");
                 System.out.println("Entreprise : " + nlp.extractCompany(description));
@@ -24,9 +31,9 @@ public class Test {
                 System.out.println("Secteur : " + nlp.extractSector(description));
                 System.out.println("Expérience : " + nlp.extractExperience(description));
                 System.out.println("Compétences : " + nlp.extractSkills(description));
-            }
+            }*/
             
-            dao.saveAllToJobsTable(data);
+           // dao.saveAllToJobsTable(data);
 
             // dao.saveAll(data);
             /*for (ScrapedData d : data) {
@@ -35,9 +42,20 @@ public class Test {
                 System.out.println("DESC: " + d.getDescription());
                 System.out.println("----------------------------");
             }*/
-        } catch (Exception e) {
+            
+            System.out.println("Nombre d'offres récupérées : " + offres.size());
+            for (Offre o : offres) {
+                System.out.println(o.toString());
+        }
+        }catch (Exception e) {
             System.err.println("Une erreur s'est produite pendant l'exécution du scraper : " + e.getMessage());
             e.printStackTrace();
         }
-    }
+    
+}
+
+	private static List<Offre> Offre() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

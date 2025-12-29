@@ -103,13 +103,13 @@ public class Offre {
     public String toString() {
         return "Offre{" +
                 "id=" + id +
-                ", entreprise='" + entreprise + '\'' +
-                ", ville='" + ville + '\'' +
-                ", secteur='" + secteur + '\'' +
-                ", experience='" + experience + '\'' +
-                ", urlSource='" + urlSource + '\'' +
-                ", title='" + title + '\'' +
-                ", competences=" + competences +
+                "\n, entreprise='" + entreprise + '\'' +
+                "\n, ville='" + ville + '\'' +
+                "\n, secteur='" + secteur + '\'' +
+                "\n, experience='" + experience + '\'' +
+                "\n, urlSource='" + urlSource + '\'' +
+                "\n, title='" + title + '\'' +
+                "\n, competences=" + competences +
                 ", datePublication=" + datePublication +
                 '}';
     }

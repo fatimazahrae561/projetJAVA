@@ -25,6 +25,8 @@ public class Test {
                 System.out.println("Expérience : " + nlp.extractExperience(description));
                 System.out.println("Compétences : " + nlp.extractSkills(description));
             }
+            
+            dao.saveAllToJobsTable(data);
 
             // dao.saveAll(data);
             /*for (ScrapedData d : data) {

@@ -5,6 +5,7 @@ import com.jobs.scraper.Scraper;
 import com.jobs.service.OffreService;
 import com.jobs.model.Offre;
 import com.jobs.model.ScrapedData;
+import com.jobs.dao.CompetenceDAO;
 import com.jobs.dao.OffreDAO;
 import com.jobs.nlp.NLPProcessor;
 import java.util.List;
@@ -33,9 +34,13 @@ public class Test {
             offresfilrer=offreservice.filtrerParCombinaison("rabat", "informatique", "sql");
             
             
+            CompetenceDAO stats = new CompetenceDAO();
+            System.out.println("statistique: "+stats.getStatistiques());
+            CompetenceDAO statsTOP5 = new CompetenceDAO();
+            System.out.println("statistique: "+statsTOP5.getTopCompetences(20));
+            /*
             
-            
-            /*for (ScrapedData d : data) {
+            for (ScrapedData d : data) {
             	String title = d.getTitle();
                 String description = d.getDescription();
                 System.out.println("----------------------------------------");
@@ -47,7 +52,7 @@ public class Test {
                 System.out.println("Compétences : " + nlp.extractSkills(description));
             }*/
             
-           //dao.saveAllToJobsTable(data);
+            //dao.saveAllToJobsTable(data);
 
             /* dao.saveAll(data);
             for (ScrapedData d : data) {
@@ -56,11 +61,11 @@ public class Test {
                 System.out.println("DESC: " + d.getDescription());
                 System.out.println("----------------------------");
             }*/
-            /*
+             /*
             System.out.println("Nombre d'offres récupérées : " + offres.size());
             for (Offre o : offres) {
                 System.out.println(o.toString());}
-            
+           
 
             System.out.println("Nombre d'offres récupérées Casablanca: " + offresCasa.size());
             for (Offre o : offresCasa) {
@@ -74,13 +79,13 @@ public class Test {
             System.out.println("Nombre d'offres récupérées info: " + offresSql.size());
             for (Offre o : offresSql) {
                 System.out.println(o.toString());}
-        */ 
+        
             
             System.out.println("Nombre d'offres récupérées info: " + offresfilrer.size());
             for (Offre o : offresfilrer) {
                 System.out.println(o.toString());}
             
-            
+      */       
     }catch (Exception e) {
             System.err.println("Une erreur s'est produite pendant l'exécution du scraper : " + e.getMessage());
             e.printStackTrace();

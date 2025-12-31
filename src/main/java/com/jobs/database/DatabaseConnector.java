@@ -6,11 +6,19 @@ import java.sql.SQLException;
 
 public class DatabaseConnector {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/jobs_db?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root"; // ton user
-    private static final String PASSWORD = ""; // ton mot de passe
+    private static final String URL =
+        "jdbc:mysql://localhost:3306/jobs_db?useSSL=false&serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
     public static Connection getConnection() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // OBLIGATOIRE
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Driver MySQL introuvable", e);
+        }
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
+
+

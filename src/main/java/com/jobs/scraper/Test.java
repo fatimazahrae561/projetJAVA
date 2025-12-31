@@ -9,7 +9,7 @@ import com.jobs.dao.CompetenceDAO;
 import com.jobs.dao.OffreDAO;
 import com.jobs.nlp.NLPProcessor;
 import java.util.List;
-
+import com.jobs.controller.DashboardController;
 public class Test {
 
     public static void main(String[] args) {
@@ -34,11 +34,15 @@ public class Test {
             offresfilrer=offreservice.filtrerParCombinaison("rabat", "informatique", "sql");
             
             
+            DashboardController dashboardController=new DashboardController();
+            List<Offre> jobs =dashboardController.getOffers();
+            
+            /*
             CompetenceDAO stats = new CompetenceDAO();
             System.out.println("statistique: "+stats.getStatistiques());
             CompetenceDAO statsTOP5 = new CompetenceDAO();
             System.out.println("statistique: "+statsTOP5.getTopCompetences(20));
-            /*
+            
             
             for (ScrapedData d : data) {
             	String title = d.getTitle();
@@ -61,11 +65,11 @@ public class Test {
                 System.out.println("DESC: " + d.getDescription());
                 System.out.println("----------------------------");
             }*/
-             /*
-            System.out.println("Nombre d'offres récupérées : " + offres.size());
-            for (Offre o : offres) {
+             
+            System.out.println("Nombre d'offres récupérées : " + jobs.size());
+            for (Offre o : jobs) {
                 System.out.println(o.toString());}
-           
+           /*
 
             System.out.println("Nombre d'offres récupérées Casablanca: " + offresCasa.size());
             for (Offre o : offresCasa) {

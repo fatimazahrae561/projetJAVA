@@ -1,5 +1,4 @@
 package com.jobs.controller;
-
 import com.jobs.controller.DashboardController;
 import com.jobs.model.Offre;
 import jakarta.servlet.ServletException;
@@ -26,21 +25,28 @@ public class DashboardServlet extends HttpServlet {
         String ville = req.getParameter("ville");
         String secteur = req.getParameter("secteur");
         String competence = req.getParameter("competence");
+        int size;
+
+        boolean hasFilter =
+                (ville != null && !ville.trim().isEmpty()) ||
+                (secteur != null && !secteur.trim().isEmpty()) ||
+                (competence != null && !competence.trim().isEmpty());
 
         List<Offre> offres;
 
-        if(ville != null || secteur != null || competence != null){
+        if (hasFilter) {
             offres = dashboard.filterCombined(ville, secteur, competence);
         } else {
             offres = dashboard.getOffers();
         }
-
+        size=offres.size();
         req.setAttribute("offres", offres);
+        req.setAttribute("size", size);
 
-        Map<String,Integer> stats = dashboard.getCompetenceStats();
-        req.setAttribute("stats", stats);
-
-        req.getRequestDispatcher("dashboard.jsp").forward(req, resp);
+        req.getRequestDispatcher("index.jsp").forward(req, resp);
+        
     }
+    
+    
 }
 

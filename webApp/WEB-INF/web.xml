@@ -15,7 +15,7 @@
 
     <servlet-mapping>
         <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/dashboard</url-pattern>
+        <url-pattern>/accueil</url-pattern>
     </servlet-mapping>
 
     <!-- Page d’accueil -->

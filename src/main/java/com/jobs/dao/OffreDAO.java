@@ -13,6 +13,30 @@ import java.util.List;
 
 public class OffreDAO {
 
+	public List<ScrapedData> findAllOffreBrutes() {
+        List<ScrapedData> offres = new ArrayList<>();
+        String sql = "SELECT id, title, description, htmlBrut, url FROM offre";
+
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+            	ScrapedData offre = new ScrapedData();
+                offre.setTitle(rs.getString("title"));
+                offre.setDescription(rs.getString("description"));
+                offre.setHtmlBrut(rs.getString("htmlBrut"));
+                offre.setUrl(rs.getString("url"));
+                offres.add(offre);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return offres;
+    }
+
     public void saveAll(List<ScrapedData> offres) {
         String sql = "INSERT INTO offre (title, description, htmlBrut, url) VALUES (?, ?, ?, ?)";
 
@@ -32,14 +56,15 @@ public class OffreDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("Error : ");
         }
     }
    
     
     public void saveAllToJobsTable(List<ScrapedData> offres) {
-        String sql = "INSERT INTO offres_jobs "
-                   + "(titre, entreprise, ville, secteur, experience, competences, url, description, html_brut) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO offres_jobs2 "
+                   + "(titre, entreprise, ville, secteur, experience, competences, url, description, html_brut,date_insertion) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
         NLPProcessor nlp;
 		try {
@@ -61,6 +86,7 @@ public class OffreDAO {
                 stmt.setString(7, data.getUrl());
                 stmt.setString(8, description);
                 stmt.setString(9, data.getHtmlBrut());
+                stmt.setString(10, nlp.extractDate(description));
 
                 stmt.addBatch();
             }
@@ -83,7 +109,7 @@ public class OffreDAO {
     public List<Offre> findAll() {
         List<Offre> offres = new ArrayList<>();
         String sql = "SELECT o.id, o.entreprise, o.ville,o.titre, o.secteur, o.experience, o.url, o.description, o.date_insertion, o.competences " +
-                     "FROM offres_jobs o";
+                     "FROM offres_jobs2 o";
 
         try (Connection conn = DatabaseConnector.getConnection();
              Statement stmt = conn.createStatement();
@@ -103,7 +129,7 @@ public class OffreDAO {
                 offre.setDescription(rs.getString("description"));
                 offre.setTitle(rs.getString("titre"));
 
-                offre.setDatePublication(rs.getDate("date_insertion"));
+                offre.setDatePublication(rs.getString("date_insertion"));
                 
                 // Compétences stockées en DB sous forme "Java,SQL,Spring"
                 String competencesStr = rs.getString("competences");
@@ -132,7 +158,7 @@ public class OffreDAO {
 
         String sql = "SELECT o.id, o.entreprise, o.ville, o.titre, o.secteur, o.experience, " +
                      "o.url, o.description, o.date_insertion, o.competences " +
-                     "FROM offres_jobs o WHERE LOWER(o.ville) = LOWER(?)";
+                     "FROM offres_jobs2 o WHERE LOWER(o.ville) = LOWER(?)";
 
         try (Connection conn = DatabaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -150,7 +176,7 @@ public class OffreDAO {
                 offre.setUrlSource(rs.getString("url"));
                 offre.setDescription(rs.getString("description"));
                 offre.setTitle(rs.getString("titre"));
-                offre.setDatePublication(rs.getDate("date_insertion"));
+                offre.setDatePublication(rs.getString("date_insertion"));
 
                 // compétences "Java, SQL, Spring"
                 String competencesStr = rs.getString("competences");
@@ -178,7 +204,7 @@ public class OffreDAO {
 
         String sql = "SELECT o.id, o.entreprise, o.ville, o.titre, o.secteur, o.experience, " +
                      "o.url, o.description, o.date_insertion, o.competences " +
-                     "FROM offres_jobs o WHERE LOWER(o.secteur) LIKE LOWER(?)";
+                     "FROM offres_jobs2 o WHERE LOWER(o.secteur) LIKE LOWER(?)";
 
         try (Connection conn = DatabaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -196,7 +222,8 @@ public class OffreDAO {
                 offre.setUrlSource(rs.getString("url"));
                 offre.setDescription(rs.getString("description"));
                 offre.setTitle(rs.getString("titre"));
-                offre.setDatePublication(rs.getDate("date_insertion"));
+                offre.setDatePublication(rs.getString("date_insertion"));
+
 
                 // compétences "Java, SQL, Spring"
                 String competencesStr = rs.getString("competences");
@@ -225,7 +252,7 @@ public class OffreDAO {
 
         String sql = "SELECT o.id, o.entreprise, o.ville, o.titre, o.secteur, o.experience, " +
                      "o.url, o.description, o.date_insertion, o.competences " +
-                     "FROM offres_jobs o " +
+                     "FROM offres_jobs2 o " +
                      "WHERE LOWER(o.competences) LIKE LOWER(?)";
 
         try (Connection conn = DatabaseConnector.getConnection();
@@ -244,7 +271,7 @@ public class OffreDAO {
                 offre.setUrlSource(rs.getString("url"));
                 offre.setDescription(rs.getString("description"));
                 offre.setTitle(rs.getString("titre"));
-                offre.setDatePublication(rs.getDate("date_insertion"));
+                offre.setDatePublication(rs.getString("date_insertion"));
 
                 // Récupérer les compétences
                 String competencesStr = rs.getString("competences");
@@ -274,7 +301,7 @@ public class OffreDAO {
 
         StringBuilder sql = new StringBuilder(
             "SELECT id, entreprise, ville, titre, secteur, experience, url, description, date_insertion, competences " +
-            "FROM offres_jobs WHERE 1=1 "
+            "FROM offres_jobs2 WHERE 1=1 "
         );
 
         List<Object> params = new ArrayList<>();
@@ -314,7 +341,7 @@ public class OffreDAO {
                 offre.setUrlSource(rs.getString("url"));
                 offre.setDescription(rs.getString("description"));
                 offre.setTitle(rs.getString("titre"));
-                offre.setDatePublication(rs.getDate("date_insertion"));
+                offre.setDatePublication(rs.getString("date_insertion"));
 
                 String competencesStr = rs.getString("competences");
                 List<String> competencesList = new ArrayList<>();

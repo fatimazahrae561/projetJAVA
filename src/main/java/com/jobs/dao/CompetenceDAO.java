@@ -35,7 +35,7 @@ public class CompetenceDAO {
 
         Map<String, Integer> stats = new HashMap<>();
 
-        String sql = "SELECT competences FROM offres_jobs WHERE competences IS NOT NULL";
+        String sql = "SELECT competences FROM offres_jobs2 WHERE competences IS NOT NULL";
 
         try (Connection conn = DatabaseConnector.getConnection();
              Statement stmt = conn.createStatement();

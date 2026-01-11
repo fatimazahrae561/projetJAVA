@@ -1,27 +1,40 @@
 package com.jobs.nlp;
-
+import com.jobs.nlp.NLPProcessor;
+import com.jobs.scraper.RekruteScraper;
+import com.jobs.scraper.Scraper;
+import com.jobs.service.OffreService;
+import com.jobs.controller.DashboardController;
 import com.jobs.dao.CompetenceDAO;
+import com.jobs.dao.OffreDAO;
+
 import java.text.Normalizer;
 import com.jobs.dao.VilleDAO;
+import com.jobs.model.Offre;
+import com.jobs.model.ScrapedData;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.sql.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 
 
 public class NLPProcessor {
 	
-	private List<String> villes;       // villes rÈcupÈrÈes depuis la base
-    private List<String> competences;  // compÈtences rÈcupÈrÈes depuis la base
+	private List<String> villes;       // villes r√©cup√©r√©es depuis la base
+    private List<String> competences;  // comp√©tences r√©cup√©r√©es depuis la base
 
     // ======= Constructeur =======
     public NLPProcessor() throws Exception {
         VilleDAO villeDAO = new VilleDAO();
         CompetenceDAO competenceDAO = new CompetenceDAO();
 
-        this.villes = villeDAO.findAll();           // rÈcupËre toutes les villes
-        this.competences = competenceDAO.findAll(); // rÈcupËre toutes les compÈtences
+        this.villes = villeDAO.findAll();           // r√©cup√®re toutes les villes
+        this.competences = competenceDAO.findAll(); // r√©cup√®re toutes les comp√©tences
     }
 	// ===================== ENTREPRISE =====================
 	public String extractCompany(String text){
@@ -34,7 +47,15 @@ public class NLPProcessor {
 
 	    if(m.find())
 	        return m.group(1).trim();
+	    
+	    Pattern p2 = Pattern.compile("Entreprise\\s*:\\s*([^\\n]+)",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		Matcher m2 = p2.matcher(text);
+		if(m2.find())
+		return m2.group(1).trim();
+		
 
+	    
 	    return "";
 	}
 
@@ -65,7 +86,7 @@ public class NLPProcessor {
         if(text == null) return "";
 
         Pattern p = Pattern.compile(
-            "Secteur d'activitÈ\\s*:\\s*([^\\n\\r]+?)(?=Fonction|ExpÈrience|Niveau|Type|$)",
+            "Secteur d'activit√©\\s*:\\s*([^\\n\\r]+?)(?=Fonction|Exp√©rience|Niveau|Type|$)",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
         );
 
@@ -87,8 +108,8 @@ public class NLPProcessor {
     public String extractExperience(String text){
         if(text == null) return "";
 
-        // Chercher la ligne "ExpÈrience requise : ..."
-        Pattern p = Pattern.compile("ExpÈrience requise\\s*:\\s*([^\\n]+)",
+        // Chercher la ligne "Exp√©rience requise : ..."
+        Pattern p = Pattern.compile("Exp√©rience requise\\s*:\\s*([^\\n]+)",
                 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
         Matcher m = p.matcher(text);
@@ -96,45 +117,53 @@ public class NLPProcessor {
         if(m.find()){
             String expText = m.group(1).trim();
 
-            // On gËre d'abord les mentions textuelles
+            // On g√®re d'abord les mentions textuelles
             String expLower = expText.toLowerCase();
 
-            if(expLower.contains("dÈbutant") && expLower.contains("junior")) {
-                return "DÈbutant / Junior";
+            if(expLower.contains("d√©butant") && expLower.contains("junior")) {
+                return "D√©butant / Junior";
             }
-            if(expLower.contains("dÈbutant")){
-                return "DÈbutant";
+            if(expLower.contains("d√©butant")){
+                return "D√©butant";
             }
             
             if(expLower.contains("junior")) {
                 return "Junior";
             }
-            if(expLower.contains("intermÈdiaire") && expLower.contains("confirmÈ")) {
-                return "confirmÈ / intermÈdiaire";
+            if(expLower.contains("interm√©diaire") && expLower.contains("confirm√©")) {
+                return "confirm√© / interm√©diaire";
             }
             
-            if(expLower.contains("intermÈdiaire") && expLower.contains("Junior")) {
-                return "Junior / intermÈdiaire";
+            if(expLower.contains("interm√©diaire") && expLower.contains("Junior")) {
+                return "Junior / interm√©diaire";
             }
-            if(expLower.contains("Expert") && expLower.contains("ConfirmÈ")) {
-                return "ConfirmÈ / Expert";
+            if(expLower.contains("Expert") && expLower.contains("Confirm√©")) {
+                return "Confirm√© / Expert";
             }
             
             if(expLower.contains("Expert")) {
                 return "Expert";
             }
             
-            if(expLower.contains("intermÈdiaire")) {
-                return "IntermÈdiaire";
+            if(expLower.contains("interm√©diaire")) {
+                return "Interm√©diaire";
             }
-            if(expLower.contains("confirmÈ")) {
-                return "ConfirmÈ";
+            if(expLower.contains("confirm√©")) {
+                return "Confirm√©";
             }
             if(expLower.contains("senior")) {
                 return "Senior";
             }
 
-            // Si c'est un range numÈrique (ex : "De 3 ‡ 5 ans", "1 ‡ 3 ans")
+         // 2Ô∏è Nouveau cas : "Niveau d'exp√©rience : ‚Ä¶"
+            Pattern p2 = Pattern.compile("Niveau d'exp√©rience\\s*:\\s*([^\\n]+)",
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Matcher m2 = p2.matcher(text);
+            if (m2.find()) {
+                return m2.group(1).trim();
+            }
+
+            // Si c'est un range num√©rique (ex : "De 3 √† 5 ans", "1 √† 3 ans")
             /*Pattern numPattern = Pattern.compile("(\\d+)");
             Matcher numMatch = numPattern.matcher(expText);
             List<Integer> values = new ArrayList<>();
@@ -146,14 +175,14 @@ public class NLPProcessor {
             if(!values.isEmpty()){
                 int min = Collections.min(values);
                 int max = Collections.max(values);
-                return min + " ‡ " + max + " ans";
+                return min + " √† " + max + " ans";
             }
 
-            // Cas gÈnÈrique si aucune info dÈtectÈe
+            // Cas g√©n√©rique si aucune info d√©tect√©e
             return expText; */
         }
 
-        return "Non spÈcifiÈe";
+        return "Non sp√©cifi√©e";
     }
 
 
@@ -161,22 +190,142 @@ public class NLPProcessor {
     // ===================== COMPETENCES =====================
     public List<String> extractSkills(String text){
         List<String> skills = new ArrayList<>();
-        if(text == null) return skills;
+        if(text == null || text.isEmpty()) return skills;
 
+        // 1Ô∏è‚É£ Chercher "Comp√©tences cl√©s : ..."
+        Pattern p = Pattern.compile(
+        		"Comp√©tences cl√©s\\s*:\\s*([^0-9\\n]+)",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+        );
+       
+
+        Matcher m = p.matcher(text);
+
+        if(m.find()){
+            // üîπ CAS 1 : Comp√©tences cl√©s trouv√©es
+            String compText = m.group(1).trim();
+
+            // S√©paration par "-" ou ","
+            String[] comps = compText.split("\\s*-\\s*|\\s*,\\s*");
+
+            for(String c : comps){
+                if(!c.isEmpty()){
+                    skills.add(c.trim());
+                }
+            }
+
+            return skills; // ‚õî on s'arr√™te ici
+        }
+
+        // 2Ô∏è‚É£ CAS 2 : fallback ‚Üí recherche classique
         for(String skill : competences){
-            if(text.toLowerCase().contains(skill.toLowerCase()))
+            if(text.toLowerCase().contains(skill.toLowerCase())){
                 skills.add(skill);
+            }
         }
 
         return skills;
     }
 
 
+    
+    
+    private static String convertMonth(String month) {
+        switch (month.toLowerCase()) {
+            case "jan": return "01";
+            case "feb": return "02";
+            case "mar": return "03";
+            case "apr": return "04";
+            case "may": return "05";
+            case "jun": return "06";
+            case "jul": return "07";
+            case "aug": return "08";
+            case "sep": return "09";
+            case "oct": return "10";
+            case "nov": return "11";
+            case "dec": return "12";
+            default: return "00";
+        }
+    }
+
+ // ===================== DATE DE PUBLICATION =====================
+    public static String extractDate(String text) {
+        if (text == null || text.isEmpty()) return "";
+
+       
+        Pattern pRange = Pattern.compile(
+            "Publication\\s*:\\s*du\\s*(\\d{2}/\\d{2}/\\d{4})\\s*au\\s*(\\d{2}/\\d{2}/\\d{4})"
+        );
+        Matcher mRange = pRange.matcher(text);
+        if (mRange.find()) {
+            return mRange.group(1);
+        }
+
+        // 2Ô∏è Cas : date simple numerique
+        Pattern pSingle = Pattern.compile("(\\d{2}[./]\\d{2}[./]\\d{4})");
+        Matcher mSingle = pSingle.matcher(text);
+        if (mSingle.find()) {
+            return mSingle.group(1).replace('.', '/');
+        }
+
+        // 3Ô∏è Cas : Publie le: 
+        Pattern pTextMonth = Pattern.compile(
+            "Publi√©e\\s*le\\s*:\\s*(\\d{1,2})\\s*([A-Za-z]{3})",
+            Pattern.CASE_INSENSITIVE
+        );
+        Matcher mTextMonth = pTextMonth.matcher(text);
+        if (mTextMonth.find()) {
+            String day = mTextMonth.group(1);
+            String month = convertMonth(mTextMonth.group(2));
+
+            // 
+            String year = String.valueOf(java.time.Year.now().getValue());
+
+            return String.format("%02d/%s/%s", Integer.parseInt(day), month, year);
+        }
+
+        return "";
+    }
+
+
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		try {            
+            NLPProcessor nlp = new NLPProcessor();
+            OffreDAO dao = new OffreDAO();
+            List<ScrapedData> data=dao.findAllOffreBrutes();
+          
+            for (ScrapedData d : data) {
+            	String title = d.getTitle();
+                String description = d.getDescription();
+                
+                System.out.println("----------------------------------------");
+                System.out.println("title: " + d.getTitle());
+                System.out.println("Entreprise : " + nlp.extractCompany(description));
+                System.out.println("Ville : " + nlp.extractCity(title+description));
+                System.out.println("Secteur : " + nlp.extractSector(description));
+                System.out.println("Exp√©rience : " + nlp.extractExperience(description));
+                System.out.println("Comp√©tences : " + nlp.extractSkills(description));
+                System.out.println("annee : " + nlp.extractDate(description));
 
+            
+            }
+            System.out.println("size: " + data.size());
+            dao.saveAllToJobsTable(data);
+
+           
+            
+    }catch (Exception e) {
+            System.err.println("Une erreur s'est produite pendant l'ex√©cution du scraper : " + e.getMessage());
+            e.printStackTrace();
+        }
+    
+}
+
+		 
 	}
 
-}
+
 
 

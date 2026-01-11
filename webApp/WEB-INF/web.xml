@@ -7,14 +7,14 @@
 
     <display-name>JobsDashboard</display-name>
 
-    <!-- Servlet Dashboard -->
+    <!-- Servlet Accueil -->
     <servlet>
-        <servlet-name>DashboardServlet</servlet-name>
-        <servlet-class>com.jobs.controller.DashboardServlet</servlet-class>
+        <servlet-name>AccueilServlet</servlet-name>
+        <servlet-class>com.jobs.controller.AccueilServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
+        <servlet-name>AccueilServlet</servlet-name>
         <url-pattern>/accueil</url-pattern>
     </servlet-mapping>
 
@@ -22,5 +22,16 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+    <servlet>
+    <!-- Servlet Dashboard -->
+    <servlet-name>DashboardServlet</servlet-name>
+    <servlet-class>com.jobs.controller.DashboardServlet</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>DashboardServlet</servlet-name>
+    <url-pattern>/dashboard</url-pattern>
+</servlet-mapping>
+    
 
 </web-app>

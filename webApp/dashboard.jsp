@@ -1,61 +1,126 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.List" %>
+
 <html>
 <head>
-    <title>Dashboard Offres</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Dashboard des Offres</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Dashboard des Offres d'Emploi</h1>
+<nav class="navbar navbar-expand-lg navbar-dark bg-secondary mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand fw-bold">Jobs Portal</span>
+        <div class="navbar-nav">
+            <a class="nav-link" href="accueil">Accueil</a>
+            <a class="nav-link active" href="dashboard">Dashboard</a>
+        </div>
+    </div>
+</nav>
 
-<!-- Formulaire de filtre -->
-<form method="get" action="dashboard">
-    Ville: <input type="text" name="ville" value="${param.ville}">
-    Secteur: <input type="text" name="secteur" value="${param.secteur}">
-    Compétence: <input type="text" name="competence" value="${param.competence}">
-    <button type="submit">Filtrer</button>
-</form>
 
-<!-- Liste des offres -->
-<table>
-    <tr>
-        <th>Titre</th>
-        <th>Entreprise</th>
-        <th>Ville</th>
-        <th>Secteur</th>
-        <th>Expérience</th>
-        <th>Compétences</th>
-        <th>Lien</th>
-    </tr>
-    <c:forEach var="o" items="${offres}">
-        <tr>
-            <td>${o.title}</td>
-            <td>${o.entreprise}</td>
-            <td>${o.ville}</td>
-            <td>${o.secteur}</td>
-            <td>${o.experience}</td>
-            <td>
-                <c:forEach var="c" items="${o.competences}">
-                    ${c}<c:if test="${!c.equals(o.competences[o.competences.size()-1])}">, </c:if>
-                </c:forEach>
-            </td>
-            <td><a href="${o.urlSource}" target="_blank">Voir</a></td>
-        </tr>
-    </c:forEach>
-</table>
 
-<!-- Statistiques compétences -->
-<h2>Top Compétences</h2>
-<table>
-    <tr><th>Compétence</th><th>Nombre d'offres</th></tr>
-    <c:forEach var="entry" items="${stats}">
-        <tr>
-            <td>${entry.key}</td>
-            <td>${entry.value}</td>
-        </tr>
-    </c:forEach>
-</table>
+<div class="container">
+    <h1 class="mb-4">Dashboard des Offres</h1>
+    
+    <!-- Total offres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Total d'offres</h5>
+            <p class="display-6 text-primary"><%= request.getAttribute("totalOffres") %></p>
+        </div>
+    </div>
+
+    <!-- Top compÃ©tences -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Top compÃ©tences</h5>
+            <ul class="list-group list-group-flush">
+                <%
+                    List<String> topComp = (List<String>) request.getAttribute("topCompetences");
+                    for (String c : topComp) {
+                %>
+                <li class="list-group-item"><%= c %></li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Statistiques compÃ©tences -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Effectif par compÃ©tence</h5>
+            <canvas id="competenceChart" height="150"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // RÃ©cupÃ©rer les donnÃ©es depuis JSP
+    const stats = {
+        <% 
+            Map<String, Integer> statsMap = (Map<String, Integer>) request.getAttribute("competenceStats");
+            boolean first = true;
+            for (Map.Entry<String, Integer> entry : statsMap.entrySet()) {
+                if (!first) out.print(","); else first = false;
+                out.print("\"" + entry.getKey() + "\":" + entry.getValue());
+            }
+        %>
+    };
+
+    const labels = Object.keys(stats);
+    const data = Object.values(stats);
+
+    const ctx = document.getElementById('competenceChart').getContext('2d');
+    const competenceChart = new Chart(ctx, {
+        type: 'bar', // histogramme
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Nombre dâ€™offres',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre dâ€™offres'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'CompÃ©tences'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
 
 </body>
 </html>

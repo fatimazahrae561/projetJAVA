@@ -27,9 +27,6 @@
 
 <div class="container">
 
-    <!-- ===== Titre ===== -->
-    
-
     <!-- ===== Formulaire ===== -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -66,13 +63,20 @@
     <!-- ===== Résultat ===== -->
     <%
         List<Offre> jobs = (List<Offre>) request.getAttribute("offres");
-        int size = request.getAttribute("size") != null
-                   ? (int) request.getAttribute("size")
-                   : 0;
+        int size = request.getAttribute("size") != null ? (int) request.getAttribute("size") : 0;
+
+        int currentPage = request.getAttribute("currentPage") != null
+                ? (int) request.getAttribute("currentPage")
+                : 1;
+
+        int totalPages = request.getAttribute("totalPages") != null
+                ? (int) request.getAttribute("totalPages")
+                : 1;
     %>
 
     <p class="fw-bold text-muted mb-2">
-        Nombre d’offres trouvées : <span class="text-primary"><%= size %></span>
+        Nombre d’offres trouvées :
+        <span class="text-primary"><%= size %></span>
     </p>
 
     <!-- ===== Tableau ===== -->
@@ -95,9 +99,9 @@
                 <tr>
                     <td>
                         <a href="<%= job.getUrlSource() %>" target="_blank"
-						   class="text-decoration-none fw-semibold text-dark">
-						    <%= job.getTitle() %>
-						</a>
+                           class="text-decoration-none fw-semibold text-dark">
+                            <%= job.getTitle() %>
+                        </a>
                     </td>
                     <td><%= job.getDescription() %></td>
                     <td style="width:120px;"><%= job.getDatePublication() %></td>
@@ -116,6 +120,49 @@
             </table>
         </div>
     </div>
+
+    <!-- ===== Pagination ===== -->
+    <% if (totalPages > 1) { %>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+
+            <!-- Précédent -->
+            <li class="page-item <%= currentPage == 1 ? "disabled" : "" %>">
+                <a class="page-link" 
+				   href="accueil?page=<%= currentPage - 1 %>&secteur=<%= request.getAttribute("secteur") != null ? java.net.URLEncoder.encode((String)request.getAttribute("secteur"), "UTF-8") : "" %>&competence=<%= request.getAttribute("competence") != null ? java.net.URLEncoder.encode((String)request.getAttribute("competence"), "UTF-8") : "" %>&ville=<%= request.getAttribute("ville") != null ? java.net.URLEncoder.encode((String)request.getAttribute("ville"), "UTF-8") : "" %>">
+				   « Précédent
+				</a>
+
+            </li>
+
+            <!-- Pages -->
+            <%
+                int startPage = Math.max(1, currentPage - 2);
+                int endPage = Math.min(totalPages, currentPage + 2);
+                for (int i = startPage; i <= endPage; i++) {
+            %>
+            <li class="page-item <%= i == currentPage ? "active" : "" %>">
+                <a class="page-link"
+				   href="accueil?page=<%= i %>&secteur=<%= request.getAttribute("secteur") != null ? java.net.URLEncoder.encode((String)request.getAttribute("secteur"), "UTF-8") : "" %>&competence=<%= request.getAttribute("competence") != null ? java.net.URLEncoder.encode((String)request.getAttribute("competence"), "UTF-8") : "" %>&ville=<%= request.getAttribute("ville") != null ? java.net.URLEncoder.encode((String)request.getAttribute("ville"), "UTF-8") : "" %>">
+				    <%= i %>
+				</a>
+
+
+            </li>
+            <% } %>
+
+            <!-- Suivant -->
+            <li class="page-item <%= currentPage == totalPages ? "disabled" : "" %>">
+                <a class="page-link"
+				   href="accueil?page=<%= currentPage + 1 %>&secteur=<%= request.getAttribute("secteur") != null ? java.net.URLEncoder.encode((String)request.getAttribute("secteur"), "UTF-8") : "" %>&competence=<%= request.getAttribute("competence") != null ? java.net.URLEncoder.encode((String)request.getAttribute("competence"), "UTF-8") : "" %>&ville=<%= request.getAttribute("ville") != null ? java.net.URLEncoder.encode((String)request.getAttribute("ville"), "UTF-8") : "" %>">
+				   Suivant »
+				</a>
+
+            </li>
+
+        </ul>
+    </nav>
+    <% } %>
 
 </div>
 

@@ -14,7 +14,7 @@ public class Offre {
     private String description;
     private String title;
     private List<String> competences;
-    private Date datePublication;
+    private String datePublication;
 
     // ================= Getters et Setters =================
 
@@ -90,11 +90,11 @@ public class Offre {
         this.competences = competences;
     }
 
-    public Date getDatePublication() {
+    public String getDatePublication() {
         return datePublication;
     }
 
-    public void setDatePublication(Date datePublication) {
+    public void setDatePublication(String datePublication) {
         this.datePublication = datePublication;
     }
 

@@ -60,7 +60,7 @@ public class EmploiMaScraper implements Scraper {
 
         return results;
     }
-   /* public static void main(String[] args) {
+    public static void main(String[] args) {
 		// TODO Auto-generated method stub
     	Scraper scraper = new EmploiMaScraper();
         List<ScrapedData> data = scraper.scrape();
@@ -70,15 +70,14 @@ public class EmploiMaScraper implements Scraper {
         for (ScrapedData d : data) {
             System.out.println("URL: " + d.getUrl());
             System.out.println("----------------------- " );
-            System.out.println("html: " + d.getHtmlBrut());
+            //System.out.println("html: " + d.getHtmlBrut());
             System.out.println("----------------------- " );
             System.out.println("title: " + d.getTitle());
             System.out.println("----------------------- " );
             System.out.println("DESC: " + d.getDescription()); 
             System.out.println("----------------------- " );
-
         }
         
         //dao.saveAll(data);
-	}*/
+	}
 }

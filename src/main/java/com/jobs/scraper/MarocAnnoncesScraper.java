@@ -101,7 +101,7 @@ public class MarocAnnoncesScraper implements Scraper {
             System.out.println("----------------------- " );
            
 	}
-        dao.saveAll(data);
+        //dao.saveAll(data);
     
 
     }

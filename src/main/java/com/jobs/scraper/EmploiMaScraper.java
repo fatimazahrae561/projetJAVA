@@ -62,8 +62,11 @@ public class EmploiMaScraper implements Scraper {
     }
     public static void main(String[] args) {
 		// TODO Auto-generated method stub
-    	Scraper scraper = new EmploiMaScraper();
-        List<ScrapedData> data = scraper.scrape();
+    	ListFactory<ScrapedData> factory = new ListFactory<>();
+        List<ScrapedData> data = factory.create();
+        Scraper scraper = new EmploiMaScraper();
+        data.addAll(scraper.scrape());
+       // List<ScrapedData> data = scraper.scrape();
         OffreDAO dao = new OffreDAO();
         System.out.println("size: " + data.size());
         //dao.saveAll(data);
